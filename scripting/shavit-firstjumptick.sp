@@ -80,7 +80,7 @@ public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 		return;
 	}
  
- 	if(gB_FJT[client] == true)
+ 	if(gB_FJT[client])
  	{
 		for(int i = 1; i <= MaxClients; i++)
 		{
