@@ -8,15 +8,17 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-Handle gH_FJTCookie;
-bool gB_FJT[MAXPLAYERS +1];
+Handle g_hFirstJumpTickCookie;
+Handle g_hCookieSet;
+
+bool g_bFirstJumpTick[MAXPLAYERS+1];
 
 public Plugin myinfo =
 {
 	name = "[shavit] First Jump Tick",
-	author = "Blank",
+	author = "Blank & Fixed by Nairda because Blank fucking sucks",
 	description = "Print which tick first jump was at",
-	version = "1.0",
+	version = "1.1",
 	url = ""
 }
  
@@ -33,8 +35,11 @@ public void OnPluginStart()
 	
 	RegConsoleCmd("sm_fjt", Command_FJT, "Toggles Jump Tick Printing");
 	RegConsoleCmd("sm_jumptick", Command_FJT, "Toggles Jump Tick Printing");
-	
-	gH_FJTCookie = RegClientCookie("FJT_enabled", "FJT_enabled", CookieAccess_Protected);
+	RegConsoleCmd("sm_tick", Command_FJT, "Toggles Jump Tick Printing");
+	RegConsoleCmd("sm_jt", Command_FJT, "Toggles Jump Tick Printing");
+
+	g_hFirstJumpTickCookie = RegClientCookie("FJT_enabled", "FJT_enabled", CookieAccess_Protected);
+	g_hCookieSet = RegClientCookie("FJT_default", "FJT_default", CookieAccess_Protected);
 	
 	for(int i = 1; i <= MaxClients; i++)
 	{
@@ -47,9 +52,19 @@ public void OnPluginStart()
 
 public void OnClientCookiesCached(int client)
 {
-	gB_FJT[client] = GetClientCookieBool(client, gH_FJTCookie);
+	char sCookie[8];
+	GetClientCookie(client, g_hCookieSet, sCookie, sizeof(sCookie));
+
+	if(StringToInt(sCookie) == 0)
+	{
+		SetCookie(client, g_hFirstJumpTickCookie, false);
+		SetCookie(client, g_hCookieSet, true);
+	}
+
+	GetClientCookie(client, g_hFirstJumpTickCookie, sCookie, sizeof(sCookie));
+	g_bFirstJumpTick[client] = view_as<bool>(StringToInt(sCookie));
 }
- 
+
 public void Shavit_OnChatConfigLoaded()
 {
 	Shavit_GetChatStrings(sMessageText, gS_ChatStrings.sText, sizeof(chatstrings_t::sText));
@@ -58,63 +73,56 @@ public void Shavit_OnChatConfigLoaded()
 
 public Action Command_FJT(int client, int args)
 {
-	if(!gB_FJT[client])
+	if(!g_bFirstJumpTick[client])
 	{
-		gB_FJT[client] = true;
+		g_bFirstJumpTick[client] = true;
+		SetCookie(client, g_hFirstJumpTickCookie, g_bFirstJumpTick[client]);
 		Shavit_PrintToChat(client, "%T", "FirstJumpTickEnabled", client, gS_ChatStrings.sVariable);
 	}
+
 	else
 	{
-		gB_FJT[client] = false;
+		g_bFirstJumpTick[client] = false;
+		SetCookie(client, g_hFirstJumpTickCookie, g_bFirstJumpTick[client]);
 		Shavit_PrintToChat(client, "%T", "FirstJumpTickDisabled", client, gS_ChatStrings.sVariable);
 	}
 }
  
 public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 {
-	int userid = GetEventInt(event, "userid");
-	int client = GetClientOfUserId(userid);
-   
-	if(IsFakeClient(client))
+	int client = GetClientOfUserId(event.GetInt("userid"));
+
+	if (IsValidClient(client))
 	{
-		return;
-	}
- 
- 	if(gB_FJT[client])
- 	{
-		for(int i = 1; i <= MaxClients; i++)
+		if(g_bFirstJumpTick[client])
 		{
-			if(IsClientInGame(i) && ((!IsPlayerAlive(i) && GetEntPropEnt(i, Prop_Data, "m_hObserverTarget") == client && GetEntProp(i, Prop_Data, "m_iObserverMode") != 7 || (i == client))))
+			for(int i = 1; i <= MaxClients; i++)
 			{
 				PrintJumpTick(i, client);
 			}
 		}
 	}
-	else
-	{
-		return;
-	}
+
+	return Plugin_Continue;
 }
- 
+
 void PrintJumpTick(int client, int target)
 {  
 	if(Shavit_GetTimerStatus(target) == Timer_Running && !Shavit_InsideZone(target, Zone_Start, -1) && Shavit_GetClientJumps(target) == 1)
-		Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor(Shavit_GetClientTime(target) * 100), gS_ChatStrings.sText);
+	{
+		Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor((Shavit_GetClientTime(target) * 100)), gS_ChatStrings.sText);
+	}
+
 	if(Shavit_InsideZone(target, Zone_Start, -1))
+	{
 		Shavit_PrintToChat(client, "%T", "ZeroTick", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
-		
+	}	
 }
 
-stock bool GetClientCookieBool(int client, Handle cookie)
+stock void SetCookie(int client, Handle hCookie, int n)
 {
-	char sValue[8];
-	GetClientCookie(client, gH_FJTCookie, sValue, sizeof(sValue));
-	return (sValue[0] != '\0' && StringToInt(sValue));
-}
-
-stock void SetClientCookieBool(int client, Handle cookie, bool value)
-{
-	char sValue[8];
-	IntToString(value, sValue, sizeof(sValue));
-	SetClientCookie(client, cookie, sValue);
+	char sCookie[64];
+	
+	IntToString(n, sCookie, sizeof(sCookie));
+	SetClientCookie(client, hCookie, sCookie);
 }
