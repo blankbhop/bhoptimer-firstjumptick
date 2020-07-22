@@ -108,15 +108,14 @@ public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 
 void PrintJumpTick(int client, int target)
 {  
-	if(Shavit_GetTimerStatus(target) == Timer_Running && !Shavit_InsideZone(target, Zone_Start, -1) && Shavit_GetClientJumps(target) == 1)
-	{
-		Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor((Shavit_GetClientTime(target) * 100)), gS_ChatStrings.sText);
-	}
-
-	if(Shavit_InsideZone(target, Zone_Start, -1))
-	{
-		Shavit_PrintToChat(client, "%T", "ZeroTick", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
-	}	
+    if(Shavit_InsideZone(target, Zone_Start, -1))
+    {
+        Shavit_PrintToChat(client, "%T", "ZeroTick", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
+    }    
+    else if(Shavit_GetTimerStatus(target) == Timer_Running && Shavit_GetClientJumps(target) == 1)
+    {
+        Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor((Shavit_GetClientTime(target) * 100)), gS_ChatStrings.sText);
+    }
 }
 
 stock void SetCookie(int client, Handle hCookie, int n)
