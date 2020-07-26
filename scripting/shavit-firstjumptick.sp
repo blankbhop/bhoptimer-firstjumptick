@@ -16,7 +16,7 @@ bool g_bFirstJumpTick[MAXPLAYERS+1];
 public Plugin myinfo =
 {
 	name = "[shavit] First Jump Tick",
-	author = "Blank & Fixed by Nairda",
+	author = "Blank & Fixed by Nairda because Blank fucking sucks",
 	description = "Print which tick first jump was at",
 	version = "1.1b",
 	url = ""
@@ -112,7 +112,7 @@ int GetHUDTarget(int client)
 {
 	int target = client;
 
-	if(IsClientObserver(client))
+	if(IsValidClient(client))
 	{
 		int iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
 
