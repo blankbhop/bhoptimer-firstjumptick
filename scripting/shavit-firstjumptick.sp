@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name = "[shavit] First Jump Tick",
 	author = "Blank & Fixed by Nairda because Blank fucking sucks",
 	description = "Print which tick first jump was at",
-	version = "1.1",
+	version = "1.1a",
 	url = ""
 }
  
@@ -94,12 +94,9 @@ public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 
 	if (IsValidClient(client))
 	{
-		if(g_bFirstJumpTick[client])
+		for(int i = 1; i <= MaxClients; i++)
 		{
-			for(int i = 1; i <= MaxClients; i++)
-			{
-				PrintJumpTick(i, client);
-			}
+			PrintJumpTick(i, client);
 		}
 	}
 
@@ -108,14 +105,17 @@ public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 
 void PrintJumpTick(int client, int target)
 {  
-    if(Shavit_InsideZone(target, Zone_Start, -1))
-    {
-        Shavit_PrintToChat(client, "%T", "ZeroTick", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
-    }    
-    else if(Shavit_GetTimerStatus(target) == Timer_Running && Shavit_GetClientJumps(target) == 1)
-    {
-        Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor((Shavit_GetClientTime(target) * 100)), gS_ChatStrings.sText);
-    }
+	if(g_bFirstJumpTick[client])
+	{
+		if(Shavit_InsideZone(target, Zone_Start, -1))
+		{
+			Shavit_PrintToChat(client, "%T", "ZeroTick", client, gS_ChatStrings.sVariable, gS_ChatStrings.sText);
+		}    
+		else if(Shavit_GetTimerStatus(target) == Timer_Running && Shavit_GetClientJumps(target) == 1)
+		{
+			Shavit_PrintToChat(client, "%T", "PrintFirstJumpTick", client, gS_ChatStrings.sVariable, RoundToFloor((Shavit_GetClientTime(target) * 100)), gS_ChatStrings.sText);
+		}
+	}
 }
 
 stock void SetCookie(int client, Handle hCookie, int n)
