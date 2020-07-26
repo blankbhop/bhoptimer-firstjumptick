@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name = "[shavit] First Jump Tick",
 	author = "Blank & Fixed by Nairda because Blank fucking sucks",
 	description = "Print which tick first jump was at",
-	version = "1.1a",
+	version = "1.1b",
 	url = ""
 }
  
@@ -96,11 +96,38 @@ public Action OnPlayerJump(Event event, char[] name, bool dontBroadcast)
 	{
 		for(int i = 1; i <= MaxClients; i++)
 		{
+			if (GetHUDTarget(i) != client)
+			{
+				continue;
+			}
+		
 			PrintJumpTick(i, client);
 		}
 	}
 
 	return Plugin_Continue;
+}
+
+int GetHUDTarget(int client)
+{
+	int target = client;
+
+	if(IsClientObserver(client))
+	{
+		int iObserverMode = GetEntProp(client, Prop_Send, "m_iObserverMode");
+
+		if(iObserverMode >= 3 && iObserverMode <= 5)
+		{
+			int iTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
+
+			if(!IsFakeClient(iTarget))
+			{
+				target = iTarget;
+			}
+		}
+	}
+
+	return target;
 }
 
 void PrintJumpTick(int client, int target)
