@@ -16,7 +16,7 @@ bool g_bFirstJumpTick[MAXPLAYERS+1];
 public Plugin myinfo =
 {
 	name = "[shavit] First Jump Tick",
-	author = "Blank & Fixed by Nairda because Blank fucking sucks",
+	author = "Blank & Fixed by Nairda",
 	description = "Print which tick first jump was at",
 	version = "1.1b",
 	url = ""
