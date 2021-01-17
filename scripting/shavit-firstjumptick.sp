@@ -120,7 +120,7 @@ int GetHUDTarget(int client)
 		{
 			int iTarget = GetEntPropEnt(client, Prop_Send, "m_hObserverTarget");
 
-			if(!IsFakeClient(iTarget))
+			if(!IsValidClientIndex(iTarget))
 			{
 				target = iTarget;
 			}
@@ -151,4 +151,10 @@ stock void SetCookie(int client, Handle hCookie, int n)
 
 	IntToString(n, sCookie, sizeof(sCookie));
 	SetClientCookie(client, hCookie, sCookie);
+}
+
+// We don't want the -1 client id bug. Thank Volvo™ for this
+stock bool IsValidClientIndex(int client)
+{
+	return (0 < client <= MaxClients);
 }
