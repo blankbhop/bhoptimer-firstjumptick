@@ -18,7 +18,7 @@ public Plugin myinfo =
 	name = "[shavit] First Jump Tick",
 	author = "Blank & Fixed by Nairda",
 	description = "Print which tick first jump was at",
-	version = "1.1c",
+	version = "1.1d",
 	url = ""
 }
 
